@@ -1,0 +1,25 @@
+body {
+    margin: 5px;
+}
+
+h1 {
+    margin-left: 2cm;
+}
+
+textarea {
+    width: 40em;
+    height: 10em;
+    margin: 5px;
+}
+
+input {
+    margin: 5px;
+}
+
+td {
+    vertical-align: top;
+}
+
+td label::after {
+    content: ":";
+}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block photolog_content %}
+    <h1>Upload de imagem</h1>
+    <form action="{{ url_for('upload_image') }}" method="post" enctype="multipart/form-data" >
+    <table>
+    {% for field in form %}
+        {% if field.name != 'csrf_token' %}
+        <tr>
+            <td>{{ field.label }}</td>
+            <td >{{ field }}</td>
+        </tr>
+        {% endif %}
+    {% endfor %}
+    </table>
+    <input type="submit" value="Enviar" />
+    </form>
+{% endblock %}
