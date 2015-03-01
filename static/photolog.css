@@ -23,3 +23,11 @@ td {
 td label::after {
     content: ":";
 }
+
+figure {
+    float: left;
+    margin: 15px;
+    padding: 15px;
+    border: 1px solid #ccc;
+
+}

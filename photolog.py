@@ -3,6 +3,10 @@ import os
 import json
 import sys
 import random
+try:
+    from io import BytesIO
+except ImportError:
+    from cStringIO import StringIO as BytesIO
 
 from PIL import Image
 
@@ -13,7 +17,6 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 
 from werkzeug import secure_filename
-
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -38,21 +41,35 @@ app.secret_key = "secretkey"
 def index():
     return render_template("index.html")
 
-
-@app.route("/image/<id>")
-def raw_image(id):
+@app.route("/image/<int:id>", defaults={"size":None})
+@app.route("/image/<int:id>/<int:size>")
+def raw_image(id, size):
     try:
-        image = db.session.query(images.ImageModel).get(int(id))
+        image = db.session.query(images.ImageModel).get(id)
         image_path = get_image_path(image.filename)
-        data = open(image_path, "rb").read()
+        img_obj = Image.open(image_path)
     except (TypeError, AttributeError, IOError):
-        return render_template("404.html"), 404
-    return Response(data, mimetype=image.get_mime())
+        return render_template('404.html'), 404
+    width, height = img_obj.size
+    if size:
+        if img_obj.mode == "P":
+            img_obj = img_obj.convert("RGBA")
+        width, height = (size, int(height * size / width)) if   width > height  else (int(width * size / height), size)
+        thumbnail = img_obj.resize((width, height),  Image.ANTIALIAS)
+        mime = "image/jpeg"
+    else:
+        thumbnail = img_obj
+        mime = image.get_mime()
+    stream = BytesIO()
+    thumbnail.save(stream, format="jpeg")
+    stream.seek(0)
+    return Response(stream.read(),
+                    mimetype=mime)
 
 @app.route("/browse")
 def browse():
-    img = db.session.query(images.ImageModel).all()
-    return render_template("images.html", images=img)
+    image_set = db.session.query(images.ImageModel).all()
+    return render_template("images.html", images=image_set)
 
 @app.route("/upload",methods=["GET", "POST"])
 @login_required
@@ -137,7 +154,6 @@ class User(UserMixin):
 
 def get_image_path(image_name):
     return (IMAGE_DIR + "/" + image_name).encode(sys.getfilesystemencoding() or "utf-8")
-
 
 import images
 

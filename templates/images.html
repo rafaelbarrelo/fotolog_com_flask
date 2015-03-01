@@ -2,11 +2,14 @@
 {% block photolog_content %}
     <h1>Imagens</h1>
     <div>
-      {% for img in images %}
-        <figure name="{{img.name}}">
-          <img class="thumbnail" src="{{ url_for('raw_image', id=img.id) }}" />
-          <figcapture>{{ img.name }}</figcapture>
-        </figure>
-      {% endfor %}
+    {% for image in images %}
+        <a href="{{ url_for('raw_image', id=image.id) }}">
+            <figure name="{{ image.name }}" >
+                <img src="{{ url_for('raw_image', id=image.id, size=320) }}">
+                <figcaption>{{ image.name }}</figcaption>
+            </figure>
+        </a>
+
+    {% endfor %}
     </div>
 {% endblock %}

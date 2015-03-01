@@ -24,7 +24,6 @@ class ImageModel(db.Model):
         self.filename = filename
         self.tags = tags
 
-
     def get_mime(self):
         return "image/{}".format(self.filename.split(".")[-1].lower())
 
