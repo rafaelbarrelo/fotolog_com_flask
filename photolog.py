@@ -6,15 +6,13 @@ import random
 
 from PIL import Image
 
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, Response
 from flask.ext.login import LoginManager, UserMixin, login_user, login_required, logout_user
 
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 
 from werkzeug import secure_filename
-
-
 
 
 app = Flask(__name__)
@@ -40,13 +38,24 @@ app.secret_key = "secretkey"
 def index():
     return render_template("index.html")
 
+
+@app.route("/image/<id>")
+def raw_image(id):
+    try:
+        image = db.session.query(images.ImageModel).get(int(id))
+        image_path = get_image_path(image.filename)
+        data = open(image_path, "rb").read()
+    except (TypeError, AttributeError, IOError):
+        return render_template("404.html"), 404
+    return Response(data, mimetype=image.get_mime())
+
 @app.route("/upload",methods=["GET", "POST"])
 @login_required
 def upload_image():
     form = images.ImageForm()
     if form.validate_on_submit():
         image_name = str(random.randint(1000000, 10000000))  + "_" +  secure_filename(form.image.data.filename)
-        image_path = (IMAGE_DIR + "/" + image_name).encode(sys.getfilesystemencoding() or "utf-8")
+        image_path = get_image_path(image_name)
         form.image.data.save(open(image_path, "wb"))
         img = images.ImageModel(form.name.data, form.description.data or "", image_name, form.tags.data)
         db.session.add(img)
@@ -120,6 +129,10 @@ class User(UserMixin):
         self.id = kw.pop("login")
         self.nome = kw.pop("nome", "")
         super().__init__()
+
+def get_image_path(image_name):
+    return (IMAGE_DIR + "/" + image_name).encode(sys.getfilesystemencoding() or "utf-8")
+
 
 import images
 
