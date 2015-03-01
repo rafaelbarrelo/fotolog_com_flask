@@ -49,6 +49,11 @@ def raw_image(id):
         return render_template("404.html"), 404
     return Response(data, mimetype=image.get_mime())
 
+@app.route("/browse")
+def browse():
+    img = db.session.query(images.ImageModel).all()
+    return render_template("images.html", images=img)
+
 @app.route("/upload",methods=["GET", "POST"])
 @login_required
 def upload_image():

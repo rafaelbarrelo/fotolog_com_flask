@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block photolog_content %}
+    <h1>Imagens</h1>
+    <div>
+      {% for img in images %}
+        <figure name="{{img.name}}">
+          <img class="thumbnail" src="{{ url_for('raw_image', id=img.id) }}" />
+          <figcapture>{{ img.name }}</figcapture>
+        </figure>
+      {% endfor %}
+    </div>
+{% endblock %}

@@ -11,7 +11,7 @@
                 <li><a href="{{ url_for('register') }}" >Cadastre-se</a></li>
                 <li><a href="{{ url_for('login') }}" >Entre</a></li>
                 <li><a href="{{ url_for('upload_image')}}">Subir fotos</a></li>
-                <li><a href="#">Navegar</a></li>
+                <li><a href="{{ url_for('browse') }}">Navegar</a></li>
                 <li><a href="{{ url_for('logout') }}" >Sair</a></li>
             </ul>
         {% if current_user.is_authenticated() %}
